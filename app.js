@@ -3,12 +3,25 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const dotenv = require('dotenv')
+const cors = require('cors')
+const connectToDatabase = require('./config/database')
+const port = process.env.PORT | 3000
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var logRouter = require('./routes/log')
+let loginRouter = require('./routes/login')
+let helloRouter = require('./routes/hello')
 
 var app = express();
+
+dotenv.config({ path: './config/config.env' })
+
+// connect to database
+connectToDatabase()
+
+app.use(cors())
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -20,9 +33,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/log', logRouter)
+app.use('/api/hello', helloRouter)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -39,5 +50,9 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+app.listen(port, () => {
+  console.log(`Server running at port ${port}`)
+})
 
 module.exports = app;
