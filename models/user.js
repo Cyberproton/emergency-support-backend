@@ -1,13 +1,20 @@
 const mongoose = require('mongoose')
+const Contact = require('./Contact')
+const Profile = require('./Profile')
 const Schema = mongoose.Schema
 
 const user = new Schema({
-    username: { type: String, default: ''},
-    password: { type: String, default: ''},
+    _id: String,
+    password: { type: String, required: true },
+    loginAt: { type: Date, default: Date.now },
+    logoutAt: { type: Date, default: Date.now },
+    currentLocation: {
+        longitude: Number,
+        latitude: Number,
+        altitude: Number,
+    },
+    profile: Profile.schema,
+    contact: Contact.schema
+})
 
-    loginAt: { type: Date, default: Date.now},
-    logoutAt: { type: Date, default: Date.now},
-    
-}, { collection: 'user' })
-
-module.exports = mongoose.model('user', login)
+module.exports = mongoose.model('user', user)

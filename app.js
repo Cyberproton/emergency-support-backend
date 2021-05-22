@@ -13,7 +13,7 @@ var usersRouter = require('./routes/users');
 var logRouter = require('./routes/log')
 let loginRouter = require('./routes/login')
 let helloRouter = require('./routes/hello')
-
+let registerRouter = require('./routes/register')
 var app = express();
 
 dotenv.config({ path: './config/config.env' })
@@ -33,7 +33,13 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use('/api/index', indexRouter)
 app.use('/api/hello', helloRouter)
+app.use('/api/login', loginRouter)  
+app.use('/api/register', registerRouter)
+app.use(auth.checkAuth) 
+app.use('/api/users', usersRouter)
+app.use('/api/log', logRouter)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
