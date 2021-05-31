@@ -8,11 +8,13 @@ const cors = require('cors')
 const connectToDatabase = require('./config/database')
 const port = process.env.PORT | 3000
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var logRouter = require('./routes/log')
-let loginRouter = require('./routes/login')
-let helloRouter = require('./routes/hello')
+const userRouter = require('./routes/user')
+const auth = require('./middlewares/auth')
+const registerRouter = require('./routes/register')
+const loginRouter = require('./routes/login')
+const helpRouter = require('./routes/help')
+const locationRouter = require('./routes/location')
+const notificationRouter = require('./routes/notification')
 
 var app = express();
 
@@ -33,8 +35,15 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/api/hello', helloRouter)
+app.use('/api/user', userRouter)
+app.use('/api/register', registerRouter)
+app.use('/api/login', loginRouter)
+app.use('/api/notification', notificationRouter)
+app.use(auth.checkAuth)
+app.use('/api/location', locationRouter)
+app.use('/api/help', helpRouter)
 
+/*
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
@@ -50,6 +59,7 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+*/
 
 app.listen(port, () => {
   console.log(`Server running at port ${port}`)

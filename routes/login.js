@@ -1,7 +1,8 @@
 const express = require('express')
-const { postLogin } = require('../controllers/login')
+const { login, loginAnonymously } = require('../controllers/login')
 const router = express.Router()
 
-router.route('/').post(postLogin)
+router.route('/').post(login)
+router.route('/anonymous').post(loginAnonymously)
 
 module.exports = router
