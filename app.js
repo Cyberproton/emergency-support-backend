@@ -15,6 +15,8 @@ const loginRouter = require('./routes/login')
 const helpRouter = require('./routes/help')
 const locationRouter = require('./routes/location')
 const notificationRouter = require('./routes/notification')
+const profileRouter = require('./routes/profile')
+const contactRouter = require('./routes/contact')
 
 var app = express();
 
@@ -42,27 +44,13 @@ app.use('/api/notification', notificationRouter)
 app.use(auth.checkAuth)
 app.use('/api/location', locationRouter)
 app.use('/api/help', helpRouter)
+app.use('/api/profile', profileRouter)
+app.use('/api/contact', contactRouter)
 
-/*
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
-
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
-*/
 
 app.listen(port, () => {
   console.log(`Server running at port ${port}`)
 })
 
 module.exports = app;
+
