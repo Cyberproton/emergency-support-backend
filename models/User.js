@@ -4,7 +4,7 @@ const Profile = require('./Profile')
 const Schema = mongoose.Schema
 
 const user = new Schema({
-    _id: String,
+    _id: { type: String, alias: 'username' },
     password: { type: String, required: true },
     loginAt: { type: Date, default: Date.now },
     logoutAt: { type: Date, default: Date.now },
@@ -14,7 +14,7 @@ const user = new Schema({
         altitude: Number,
     },
     profile: Profile.schema,
-    contact: Contact.schema
+    contacts: { type: [ Contact.schema ], default: [] }
 })
 
 module.exports = mongoose.model('user', user)
