@@ -17,6 +17,8 @@ const registerRouter = require('./routes/register')
 const loginRouter = require('./routes/login')
 const helpRouter = require('./routes/help')
 const locationRouter = require('./routes/location')
+const profileRouter = require('./routes/profile')
+const contactRouter = require('./routes/contact')
 
 const app = express();
 
@@ -43,6 +45,8 @@ app.use('/api/login', loginRouter)
 app.use(auth.checkAuth)
 app.use('/api/location', locationRouter)
 app.use('/api/help', helpRouter)
+app.use('/api/profile', profileRouter)
+app.use('/api/contact', contactRouter)
 
 const server = app.listen(port, () => {
   console.log(`Server running at port ${port}`)
@@ -53,3 +57,4 @@ const io = new Server(server)
 handleIO.handleIO(io)
 
 module.exports = app;
+
