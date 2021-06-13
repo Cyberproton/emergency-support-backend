@@ -5,7 +5,6 @@ const checkAuth = async (req, res, next) => {
 
     if (token) {
         try {
-            console.log(process.env.ACCESS_TOKEN_SECRET)
             const decoded = await jwt.verifyToken(token, process.env.ACCESS_TOKEN_SECRET)
             req.jwtDecoded = decoded
             next()

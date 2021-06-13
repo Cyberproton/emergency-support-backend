@@ -13,11 +13,15 @@
     "dotenv": "^9.0.2",
     "express": "~4.16.1",
     "firebase-admin": "^9.8.0",
+    "geolib": "^3.3.1",
     "http-errors": "~1.6.3",
     "jade": "^0.31.2",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.12.8",
     "morgan": "~1.9.1",
-    "nodemon": "^2.0.7"
+    "node-schedule": "^2.0.0",
+    "nodemon": "^2.0.7",
+    "socket.io": "^4.1.2",
+    "toad-scheduler": "^1.3.0"
   }
 }
