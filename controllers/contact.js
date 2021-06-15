@@ -30,8 +30,8 @@ const addContact = (req, res) => {
             const contact = new Contact(req.body)
             user.contacts.push(contact)
             user.save()
-                .then(contact => {
-                    res.status(200).json({ contact: contact })
+                .then(user => {
+                    res.status(200).json({ contact: user.contacts.id(contact._id) })
                 })
                 .catch(err => res.status(500).json({ error: err }))
         })
@@ -54,8 +54,8 @@ const updateContact = (req, res) => {
             if (req.body.phone) {
                 contact.phone = req.body.phone
             }
-            contact.save()
-                .then(contact => res.status(200).json({ contact: contact }))
+            user.save()
+                .then(user => res.status(200).json({ contact: user.contacts.id(id) }))
                 .catch(err => res.status(500).json({ error: err }))
         })
         .catch(err => res.status(500).json({ error: err }))
