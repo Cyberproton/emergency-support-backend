@@ -25,7 +25,7 @@ const updateProfile = (req, res, next) => {
             profile: req.body
         }, { new: true })
         .exec()
-        .then(user => res.status(200).json({ user: user }))
+        .then(user => res.status(200).json({ profile: user.profile }))
         .catch(err => res.status(500).json({ error: err }))
 }
 
