@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const Profile = require('../models/Profile')
 
 const User = require('../models/User')
 const jwt = require('../utils/jwt')
@@ -26,7 +27,7 @@ exports.login = async (req, res, next) => {
 exports.loginAnonymously = async (req, res, next) => {
     const username = 'anonymous' + mongoose.Types.ObjectId().toHexString()
     const password = mongoose.Types.ObjectId().toHexString()
-    const user = new User({ _id: username, password: password })
+    const user = new User({ _id: username, password: password, profile: new Profile() })
     try { 
         await user.save()
     } catch (err) {

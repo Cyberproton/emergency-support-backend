@@ -18,23 +18,22 @@ async function register(req, res, next) {
         return
     }
 
-    let profile = undefined
+    const profile = new Profile()
     if (phone) {
-        profile = new Profile({ phone: phone })
+        profile.phone = phone
     }
 
     let data = {}
     data._id = username
     data.password = password
-    if (profile) {
-        data.profile = profile
-    }
+    data.profile = profile
 
     let user = new User(data)
     user.save((err, user) => {
         if (err) {
             res.status(500).json({ message: 'Could not create your account', error: err.message })
         } else {
+            user.password = ''
             res.status(201).json({ message: 'User registered successfully', user: user })
         }
     })
