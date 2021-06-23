@@ -22,7 +22,7 @@ const handleIO = (io) => {
         const username = socket.user
         const existingCase = storage.cases[username]
         if (existingCase) {
-          socket.emit('caseCreated', c)
+          socket.emit('caseCreated', existingCase)
           return
         }
         // Victim call
