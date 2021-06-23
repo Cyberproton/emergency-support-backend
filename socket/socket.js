@@ -20,6 +20,11 @@ const handleIO = (io) => {
       
       socket.on('startEmergency', async () => {
         const username = socket.user
+        const existingCase = storage.cases[username]
+        if (existingCase) {
+          socket.emit('caseCreated', c)
+          return
+        }
         // Victim call
         const c = new Case({ caller: username, volunteers: [] })
         await c.populate('caller').populate('volunteer').execPopulate()
