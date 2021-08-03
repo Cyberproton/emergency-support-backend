@@ -8,7 +8,6 @@ var logger = require('morgan');
 const dotenv = require('dotenv')
 const cors = require('cors')
 const connectToDatabase = require('./config/database')
-const port = process.env.PORT | 3000
 const handleIO = require('./socket/socket')
 const userRouter = require('./routes/user')
 const auth = require('./middlewares/auth')
@@ -24,14 +23,13 @@ const app = express();
 
 dotenv.config({ path: './config/config.env' })
 
+const port = process.env.PORT || 3000
+const host = '0.0.0.0'
+
 // connect to database
 connectToDatabase()
 
 app.use(cors())
-
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -48,7 +46,7 @@ app.use('/api/help', helpRouter)
 app.use('/api/profile', profileRouter)
 app.use('/api/contact', contactRouter)
 
-const server = app.listen(port, () => {
+const server = app.listen(port, host, () => {
   console.log(`Server running at port ${port}`)
 })
 

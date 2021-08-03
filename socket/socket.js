@@ -22,6 +22,7 @@ const handleIO = (io) => {
         const username = socket.user
         const existingCase = storage.cases[username]
         if (existingCase) {
+          console.log('User ' + socket.user + ' restart emergency with socket id = ' + socket.id)
           socket.emit('caseCreated', existingCase)
           return
         }
@@ -32,6 +33,7 @@ const handleIO = (io) => {
         console.log('User ' + socket.user + ' start emergency with socket id = ' + socket.id)
         socket.emit('caseCreated', c)
         storage.cases[username] = c
+        storage.notifications[c._id] = []
 
         // Volunteer notification
         const victim = await User.findById(username).exec()
@@ -65,30 +67,25 @@ const handleIO = (io) => {
         }
 
         job = storage.findTasks[cs._id]
-        console.log('Job ' + job)
         if (job) {
           console.log('Job for case ' + cs._id + ' is cancelled')
           job.stop()
-          console.log(job.getStatus())
         }
 
         cs = await cs.populate('caller').populate('volunteers').execPopulate()
-        cs.volunteers.forEach(volunteer => {
-          const n = storage.notifications[volunteer.username]
-          if (n) {
-            const i = n.indexOf(cs._id)
-            if (i > 0) {
-              const sid = storage[volunteer.username]
-              if (sid) {
-                socket.to(sid).emit('caseClosed', cs)
-              }
-
-              n.splice(i, 1)
-              storage.notifications[volunteer.username] = n
+        const notified = storage.notifications[cs._id]
+        console.log(notified)
+        if (notified) {
+          notified.forEach(username => {
+            const sid = storage.socketIds[username]
+            if (sid) {
+              socket.to(sid).emit('caseClosed', cs)
             }
-          }
-        }) 
+            delete storage.cases[username]
+          })
+        }
         
+        delete storage.notifications[cs._id]
         delete storage.cases[username]
         delete storage.findTasks[cs._id]
       })
@@ -103,11 +100,11 @@ const handleIO = (io) => {
            if (c.is_closed) {
             await c.populate('caller').populate('volunteers').execPopulate()
             const victim = c.caller
-            const sidv = storage.socketIds[victim.username]
+            const sidv = storage.socketIds[victim._id]
             io.to(sidv).emit('volunteerAccept', volunteer, c)
             return
            }
-           c.volunteers.push(volunteer.username)
+           c.volunteers.push(volunteer._id)
            await c.save()
            await c.populate('caller').populate('volunteers').execPopulate()
            storage.cases[username] = c
@@ -115,7 +112,7 @@ const handleIO = (io) => {
           console.log(err)
         }
         const victim = c.caller
-        const sidv = storage.socketIds[victim.username]
+        const sidv = storage.socketIds[victim._id]
         io.to(sidv).emit('volunteerAccept', volunteer, c)
       })
 
@@ -140,36 +137,66 @@ const handleIO = (io) => {
         await cs.save()
         await cs.populate('caller').populate('volunteers').execPopulate()
         const victim = cs.caller
-        storage.cases[victim.username] = cs
-        const sidv = storage.socketIds[victim.username]
+        storage.cases[victim._id] = cs
+        const sidv = storage.socketIds[victim._id]
         io.to(sidv).emit('volunteerStop', volunteer, cs)
       })
     })
 }
 
-const findTask = async (io, c, victim) => {
+const findTask = async (io, c, v) => {
   let users = await User.find().exec()
   const cs = await Case.findById(c._id).populate('caller').populate('volunteers').exec()
+  const victim = await User.findById(v._id)
+  const filtered = []
+  /*
   users = users.filter(user => 
     victim.username !== user.username && 
     Object.keys(storage.socketIds).includes(user.username) && 
     //!(storage.notifications[user.username] && storage.notifications[user.username].includes(c._id)) &&
-    victim.currentLocation && user.currentLocation &&
+    victim.currentLocation != null && user.currentLocation != null &&
     geolib.getDistance(victim.currentLocation, user.currentLocation) < c.searchRadius
-  )
-  users.forEach(user => {
-    const sid = storage.socketIds[user.username]
-    io.to(sid).emit('victimCall', victim, cs, user)
+  )*/
 
-    let n = storage.notifications[user.username]
-    if (!n) {
-      n = []
+  for (const u of users) {
+    console.log(u._id)
+    if (victim._id === u._id) {
+      continue
     }
-    n.push(c._id)
-    storage.notifications[user.username] = n
-  })
-  const sidv = storage.socketIds[victim.username]
+    console.log(1)
+    if (!Object.keys(storage.socketIds).includes(u._id)) {
+      continue
+    }
+    console.log(2)
+    if (victim.currentLocation == null) {
+      continue
+    }
+    console.log(3)
+    if (u.currentLocation == null) {
+      continue
+    }
+    console.log(4)
+    if (geolib.getDistance(victim.currentLocation, u.currentLocation) > c.searchRadius) {
+      continue
+    }
+    console.log(5)
+    filtered.push(u)
+  }
+
+  const n = storage.notifications[cs._id]
+  if (n) {
+    filtered.forEach(user => {
+      const sid = storage.socketIds[user._id]
+      io.to(sid).emit('victimCall', victim, cs, user)
+      if (!n.includes(user._id)) {
+        n.push(user._id)
+      }
+    })
+    storage.notifications[cs._id] = n
+  }
+  const sidv = storage.socketIds[victim._id]
   console.log('Victim call with case id=' + c._id)
+  console.log('Notification: ' + storage.notifications[cs._id])
   //io.to(storage.socketIds[victim.username]).emit('victimCall', victim, cs, user)
 }
 
@@ -180,7 +207,7 @@ const volunteerUpdateTask = async (io, c, victim) => {
   } catch (err) {
     console.log(err)
   }
-  const sidv = storage.socketIds[victim.username]
+  const sidv = storage.socketIds[victim._id]
   io.to(sidv).emit('volunteerUpdate', cs)
 }
 
