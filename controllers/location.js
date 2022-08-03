@@ -33,6 +33,7 @@ exports.postLocation = (req, res, next) => {
         if (err) {
             res.status(500).json({ message: 'Could not update user location', error: err.message })
         } else {
+            console.log("Location update for " + username)
             res.status(200).json({ message: 'User location updated successfully' })
         }
     }).exec()

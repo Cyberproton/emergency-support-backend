@@ -168,14 +168,15 @@ const findTask = async (io, c, v) => {
       continue
     }
     console.log(2)
-    if (victim.currentLocation == null) {
+    console.log(victim.currentLocation)
+    if (!isLocationValid(victim.currentLocation)) {
       continue
     }
-    console.log(3)
-    if (u.currentLocation == null) {
+    if (!isLocationValid(u.currentLocation)) {
       continue
     }
-    console.log(4)
+    console.log(u.currentLocation)
+    
     if (geolib.getDistance(victim.currentLocation, u.currentLocation) > c.searchRadius) {
       continue
     }
@@ -209,6 +210,10 @@ const volunteerUpdateTask = async (io, c, victim) => {
   }
   const sidv = storage.socketIds[victim._id]
   io.to(sidv).emit('volunteerUpdate', cs)
+}
+
+const isLocationValid = (location) => {
+  return location && location['longitude'] && location['latitude']
 }
 
 module.exports = { handleIO: handleIO }
